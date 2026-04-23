@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="StreamVault – Discover and stream amazing videos across documentaries, music, education and more.">
+    <title>{% block title %}StreamVault{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <!-- Logo -->
+            <a href="{{ url_for('index') }}" class="nav-logo">
+                <span class="material-icons-round logo-icon">play_circle</span>
+                <span class="logo-text">Stream<span class="logo-accent">Vault</span></span>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <ul class="nav-links" id="nav-links">
+                <li><a href="{{ url_for('index') }}"
+                        class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                <li><a href="{{ url_for('browse') }}"
+                        class="nav-link {% if request.endpoint == 'browse' %}active{% endif %}">Browse</a></li>
+                <li><a href="{{ url_for('admin') }}"
+                        class="nav-link {% if request.endpoint == 'admin' %}active{% endif %}">Admin</a></li>
+            </ul>
+
+            <!-- Search Bar -->
+            <form class="nav-search" id="nav-search" action="{{ url_for('search') }}" method="GET">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" name="q" id="search-input" placeholder="Search videos…" autocomplete="off"
+                    value="{{ request.args.get('q', '') }}">
+                <button type="submit" class="search-btn" aria-label="Search">
+                    <span class="material-icons-round">arrow_forward</span>
+                </button>
+            </form>
+
+            <!-- Hamburger Toggle -->
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <a href="{{ url_for('index') }}" class="mobile-link {% if request.endpoint == 'index' %}active{% endif %}">
+                <span class="material-icons-round">home</span> Home
+            </a>
+            <a href="{{ url_for('browse') }}"
+                class="mobile-link {% if request.endpoint == 'browse' %}active{% endif %}">
+                <span class="material-icons-round">explore</span> Browse
+            </a>
+            <a href="{{ url_for('admin') }}" class="mobile-link {% if request.endpoint == 'admin' %}active{% endif %}">
+                <span class="material-icons-round">admin_panel_settings</span> Admin
+            </a>
+            <form class="mobile-search" action="{{ url_for('search') }}" method="GET">
+                <input type="text" name="q" placeholder="Search videos…" value="{{ request.args.get('q', '') }}">
+                <button type="submit" aria-label="Search">
+                    <span class="material-icons-round">search</span>
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- ===== FLASH MESSAGES ===== -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" id="flash-container">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">
+            <span class="material-icons-round">
+                {% if category == 'success' %}check_circle
+                {% elif category == 'error' %}error
+                {% elif category == 'warning' %}warning
+                {% else %}info{% endif %}
+            </span>
+            <p>{{ message }}</p>
+            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Dismiss">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <a href="{{ url_for('index') }}" class="footer-logo">
+                    <span class="material-icons-round logo-icon">play_circle</span>
+                    <span class="logo-text">Stream<span class="logo-accent">Vault</span></span>
+                </a>
+                <p class="footer-tagline">Your gateway to endless entertainment.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Explore</h4>
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('browse') }}">Browse</a>
+                <a href="{{ url_for('search') }}">Search</a>
+            </div>
+            <div class="footer-links">
+                <h4>Admin</h4>
+                <a href="{{ url_for('admin') }}">Dashboard</a>
+                <a href="{{ url_for('add') }}">Add Video</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 StreamVault. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Browse – StreamVault{% endblock %}
+
+{% block content %}
+
+<!-- ===== BROWSE HEADER ===== -->
+<section class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <span class="material-icons-round">explore</span>
+            Browse Videos
+        </h1>
+        <p class="page-subtitle">
+            {% if selected_category %}
+            Showing results for <strong>{{ selected_category }}</strong>
+            {% else %}
+            Explore our full collection of videos
+            {% endif %}
+        </p>
+    </div>
+</section>
+
+<!-- ===== CATEGORY FILTER ===== -->
+<section class="filter-section">
+    <div class="filter-container">
+        <span class="filter-label">
+            <span class="material-icons-round">filter_list</span> Filter by:
+        </span>
+        <div class="filter-pills" id="filter-pills">
+            <a href="{{ url_for('browse') }}" class="filter-pill {% if not selected_category %}active{% endif %}">
+                All
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('browse', category=cat) }}"
+                class="filter-pill {% if selected_category == cat %}active{% endif %} badge-{{ cat | lower | replace(' ', '-') }}">
+                {{ cat }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Dropdown for mobile -->
+        <select class="filter-select" id="filter-select" onchange="window.location.href=this.value">
+            <option value="{{ url_for('browse') }}" {% if not selected_category %}selected{% endif %}>All Categories
+            </option>
+            {% for cat in categories %}
+            <option value="{{ url_for('browse', category=cat) }}" {% if selected_category==cat %}selected{% endif %}>
+                {{ cat }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</section>
+
+<!-- ===== RESULTS COUNT ===== -->
+<div class="results-bar">
+    <span class="results-count">
+        <span class="material-icons-round">grid_view</span>
+        {{ videos | length }} video{% if videos | length != 1 %}s{% endif %} found
+    </span>
+</div>
+
+<!-- ===== VIDEOS GRID ===== -->
+<section class="section">
+    {% if videos %}
+    <div class="videos-grid" id="browse-grid">
+        {% for video in videos %}
+        <a href="{{ url_for('watch', video_id=video.id) }}" class="video-card" data-category="{{ video.category }}">
+            <div class="card-thumb">
+                <img src="{{ video.thumbnail }}" alt="{{ video.title }}" loading="lazy">
+                <div class="card-overlay">
+                    <span class="material-icons-round play-btn">play_circle</span>
+                </div>
+                {% if video.featured %}
+                <span class="card-badge">
+                    <span class="material-icons-round">star</span> Featured
+                </span>
+                {% endif %}
+            </div>
+            <div class="card-info">
+                <span class="category-badge badge-{{ video.category | lower | replace(' ', '-') }}">{{ video.category
+                    }}</span>
+                <h3 class="card-title">{{ video.title }}</h3>
+                <p class="card-desc">{{ video.description[:90] }}{% if video.description|length > 90 %}…{% endif %}</p>
+                <div class="card-meta">
+                    <span><span class="material-icons-round">visibility</span> {{ video.views }} views</span>
+                    <span><span class="material-icons-round">schedule</span> {{ video.created_at[:10] }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="material-icons-round">search_off</span>
+        <h3>No videos in this category</h3>
+        <p>Try a different category or browse all videos.</p>
+        <a href="{{ url_for('browse') }}" class="btn-primary">
+            <span class="material-icons-round">explore</span> Browse All
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

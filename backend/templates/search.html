@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Search{% if query %}: {{ query }}{% endif %} – StreamVault{% endblock %}
+
+{% block content %}
+
+<!-- ===== SEARCH HEADER ===== -->
+<section class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <span class="material-icons-round">search</span>
+            {% if query %}
+            Results for "{{ query }}"
+            {% else %}
+            Search Videos
+            {% endif %}
+        </h1>
+        <p class="page-subtitle">
+            {% if query %}
+            Found <strong>{{ results | length }}</strong> result{% if results | length != 1 %}s{% endif %}
+            {% else %}
+            Enter a keyword to find videos
+            {% endif %}
+        </p>
+    </div>
+</section>
+
+<!-- ===== SEARCH BAR (large) ===== -->
+<section class="search-hero">
+    <form class="search-hero-form" action="{{ url_for('search') }}" method="GET">
+        <div class="search-hero-input">
+            <span class="material-icons-round">search</span>
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by title, category, or keyword…"
+                autocomplete="off" autofocus>
+            {% if query %}
+            <a href="{{ url_for('search') }}" class="clear-search" title="Clear search">
+                <span class="material-icons-round">close</span>
+            </a>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn-primary search-submit">
+            <span class="material-icons-round">arrow_forward</span> Search
+        </button>
+    </form>
+</section>
+
+<!-- ===== SEARCH RESULTS ===== -->
+{% if query %}
+{% if results %}
+<section class="section">
+    <div class="videos-grid" id="search-grid">
+        {% for video in results %}
+        <a href="{{ url_for('watch', video_id=video.id) }}" class="video-card">
+            <div class="card-thumb">
+                <img src="{{ video.thumbnail }}" alt="{{ video.title }}" loading="lazy">
+                <div class="card-overlay">
+                    <span class="material-icons-round play-btn">play_circle</span>
+                </div>
+                {% if video.featured %}
+                <span class="card-badge">
+                    <span class="material-icons-round">star</span> Featured
+                </span>
+                {% endif %}
+            </div>
+            <div class="card-info">
+                <span class="category-badge badge-{{ video.category | lower | replace(' ', '-') }}">{{ video.category
+                    }}</span>
+                <h3 class="card-title">{{ video.title }}</h3>
+                <p class="card-desc">{{ video.description[:90] }}{% if video.description|length > 90 %}…{% endif %}</p>
+                <div class="card-meta">
+                    <span><span class="material-icons-round">visibility</span> {{ video.views }} views</span>
+                    <span><span class="material-icons-round">schedule</span> {{ video.created_at[:10] }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% else %}
+<div class="empty-state">
+    <span class="material-icons-round">search_off</span>
+    <h3>No results found for "{{ query }}"</h3>
+    <p>Try different keywords or browse our full collection.</p>
+    <div class="empty-actions">
+        <a href="{{ url_for('browse') }}" class="btn-primary">
+            <span class="material-icons-round">explore</span> Browse All
+        </a>
+        <a href="{{ url_for('search') }}" class="btn-ghost">
+            <span class="material-icons-round">refresh</span> Clear Search
+        </a>
+    </div>
+</div>
+{% endif %}
+{% else %}
+<!-- No query yet – show suggestions -->
+<section class="section">
+    <div class="search-suggestions">
+        <h3 class="suggestions-title">Try searching for…</h3>
+        <div class="suggestion-tags">
+            <a href="{{ url_for('search', q='documentary') }}" class="suggestion-tag">Documentary</a>
+            <a href="{{ url_for('search', q='nature') }}" class="suggestion-tag">Nature</a>
+            <a href="{{ url_for('search', q='music') }}" class="suggestion-tag">Music</a>
+            <a href="{{ url_for('search', q='education') }}" class="suggestion-tag">Education</a>
+            <a href="{{ url_for('search', q='cooking') }}" class="suggestion-tag">Cooking</a>
+            <a href="{{ url_for('search', q='photography') }}" class="suggestion-tag">Photography</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

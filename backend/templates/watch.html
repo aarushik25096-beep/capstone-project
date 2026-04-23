@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ video.title }} – StreamVault{% endblock %}
+
+{% block content %}
+
+<div class="watch-layout">
+
+    <!-- ===== MAIN VIDEO COLUMN ===== -->
+    <div class="watch-main">
+
+        <!-- Video Player -->
+        <div class="player-wrapper" id="player-wrapper">
+            {% set url = video.video_url %}
+            {% if 'youtube.com/embed' in url or 'youtu.be' in url or 'youtube.com/watch' in url %}
+            <!-- YouTube embed -->
+            {% if 'watch?v=' in url %}
+            {% set yt_id = url.split('watch?v=')[1].split('&')[0] %}
+            <iframe class="video-player" src="https://www.youtube.com/embed/{{ yt_id }}?autoplay=0&rel=0"
+                title="{{ video.title }}" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen loading="lazy"></iframe>
+            {% else %}
+            <iframe class="video-player" src="{{ url }}" title="{{ video.title }}" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen loading="lazy"></iframe>
+            {% endif %}
+            {% else %}
+            <!-- Direct MP4 / other video -->
+            <video class="video-player" controls preload="metadata" poster="{{ video.thumbnail }}">
+                <source src="{{ url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            {% endif %}
+        </div>
+
+        <!-- Video Details -->
+        <div class="video-details">
+            <div class="video-details-top">
+                <span class="category-badge badge-{{ video.category | lower | replace(' ', '-') }}">{{ video.category
+                    }}</span>
+                {% if video.featured %}
+                <span class="featured-tag">
+                    <span class="material-icons-round">star</span> Featured
+                </span>
+                {% endif %}
+            </div>
+
+            <h1 class="video-title">{{ video.title }}</h1>
+
+            <div class="video-stats">
+                <span class="stat">
+                    <span class="material-icons-round">visibility</span>
+                    {{ video.views }} views
+                </span>
+                <span class="stat">
+                    <span class="material-icons-round">calendar_today</span>
+                    {{ video.created_at[:10] }}
+                </span>
+                <div class="video-actions">
+                    <a href="{{ url_for('edit', video_id=video.id) }}" class="action-btn" title="Edit this video">
+                        <span class="material-icons-round">edit</span> Edit
+                    </a>
+                </div>
+            </div>
+
+            <div class="video-divider"></div>
+
+            <div class="video-description">
+                <h3>About this video</h3>
+                <p>{{ video.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SIDEBAR – RELATED VIDEOS ===== -->
+    <aside class="watch-sidebar" id="watch-sidebar">
+        <h3 class="sidebar-title">
+            <span class="material-icons-round">queue_play_next</span>
+            Related Videos
+        </h3>
+
+        {% if related %}
+        <div class="related-list">
+            {% for v in related %}
+            <a href="{{ url_for('watch', video_id=v.id) }}" class="related-card">
+                <div class="related-thumb">
+                    <img src="{{ v.thumbnail }}" alt="{{ v.title }}" loading="lazy">
+                    <div class="related-overlay">
+                        <span class="material-icons-round">play_circle</span>
+                    </div>
+                </div>
+                <div class="related-info">
+                    <span class="category-badge badge-{{ v.category | lower | replace(' ', '-') }}">{{ v.category
+                        }}</span>
+                    <p class="related-title">{{ v.title }}</p>
+                    <span class="related-views">
+                        <span class="material-icons-round">visibility</span> {{ v.views }}
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-related">
+            <span class="material-icons-round">video_library</span>
+            <p>No related videos found.</p>
+            <a href="{{ url_for('browse') }}" class="btn-ghost small">Browse All</a>
+        </div>
+        {% endif %}
+
+        <!-- Back to browse -->
+        <a href="{{ url_for('browse') }}" class="back-link">
+            <span class="material-icons-round">arrow_back</span> Back to Browse
+        </a>
+    </aside>
+
+</div>
+
+{% endblock %}
