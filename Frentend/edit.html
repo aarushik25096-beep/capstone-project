@@ -1,0 +1,159 @@
+<!-- Name: Shivam Jahane -->
+<!-- Enrollment No: 2502140075 -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Video — Admin Panel</title>
+    <meta name="description" content="Edit video details on the streaming platform admin panel.">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="./styles.css" rel="stylesheet">
+    <link href="./admin-styles.css" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <!-- ===== TOP NAVIGATION ===== -->
+    <nav class="admin-nav" id="admin-nav">
+        <div class="admin-nav-inner">
+            <div class="admin-brand">
+                <a href="./index.html" class="brand-link">
+                    <img src="./Recources/LOGO.png" alt="Logo" class="admin-logo">
+                </a>
+                <span class="brand-divider"></span>
+                <span class="brand-label">Admin Panel</span>
+            </div>
+            <div class="admin-nav-actions">
+                <a href="./admin.html" class="btn-nav-back" id="btn-back-to-dashboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== FLASH MESSAGES ===== -->
+    <div class="flash-container" id="flash-container"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="admin-main">
+        <div class="admin-container">
+
+            <!-- ===== EDIT FORM ===== -->
+            <section class="admin-section edit-section" id="edit-video-section">
+                <div class="section-header">
+                    <h2>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Edit Video
+                    </h2>
+                </div>
+
+                <!-- Video preview card -->
+                <div class="edit-preview" id="edit-preview">
+                    <img id="preview-thumbnail" src="" alt="Video thumbnail" class="preview-thumb">
+                    <div class="preview-info">
+                        <h3 id="preview-title"></h3>
+                        <span class="preview-category" id="preview-category"></span>
+                    </div>
+                </div>
+
+                <form class="video-form" id="edit-video-form" novalidate>
+                    <input type="hidden" id="edit-video-id" name="id">
+
+                    <div class="form-grid">
+                        <div class="form-group" id="edit-group-title">
+                            <label for="edit-title">Video Title <span class="required">*</span></label>
+                            <input type="text" id="edit-title" name="title" placeholder="Enter video title..." required>
+                            <span class="field-error" id="edit-error-title"></span>
+                        </div>
+
+                        <div class="form-group" id="edit-group-category">
+                            <label for="edit-category">Category <span class="required">*</span></label>
+                            <select id="edit-category" name="category" required>
+                                <option value="">Select category...</option>
+                                <option value="DSA">Data Structures & Algorithms</option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="Machine Learning">Machine Learning</option>
+                                <option value="System Design">System Design</option>
+                                <option value="Mobile Development">Mobile Development</option>
+                                <option value="DevOps">DevOps & Cloud</option>
+                                <option value="Competitive Programming">Competitive Programming</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="field-error" id="edit-error-category"></span>
+                        </div>
+
+                        <div class="form-group form-group-full" id="edit-group-description">
+                            <label for="edit-description">Description <span class="required">*</span></label>
+                            <textarea id="edit-description" name="description" rows="4"
+                                placeholder="Describe the video content..." required></textarea>
+                            <span class="field-error" id="edit-error-description"></span>
+                        </div>
+
+                        <div class="form-group" id="edit-group-thumbnail">
+                            <label for="edit-thumbnail">Thumbnail URL <span class="required">*</span></label>
+                            <input type="url" id="edit-thumbnail" name="thumbnail"
+                                placeholder="https://example.com/thumb.jpg" required>
+                            <span class="field-error" id="edit-error-thumbnail"></span>
+                        </div>
+
+                        <div class="form-group" id="edit-group-embed">
+                            <label for="edit-embed">Embed URL <span class="required">*</span></label>
+                            <input type="url" id="edit-embed" name="embed_url"
+                                placeholder="https://youtube.com/embed/..." required>
+                            <span class="field-error" id="edit-error-embed"></span>
+                        </div>
+
+                        <div class="form-group form-group-toggle" id="edit-group-featured">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Featured Video</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="edit-featured" name="featured">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-help">Featured videos appear prominently on the homepage</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="./admin.html" class="btn btn-secondary" id="btn-cancel-edit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="btn-save-video">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="./script.js"></script>
+</body>
+
+</html>
