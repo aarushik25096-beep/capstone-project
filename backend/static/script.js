@@ -127,6 +127,179 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    /* ================================================================
+       ADMIN – Toggle Add Video Form
+       ================================================================ */
+    const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
+    const addFormWrapper = document.getElementById('admin-add-form');
+    const closeAddFormBtn = document.getElementById('close-add-form-btn');
+    const cancelAddFormBtn = document.getElementById('cancel-add-form-btn');
+
+    function showAddForm() {
+        if (addFormWrapper) {
+            addFormWrapper.style.display = 'block';
+            toggleAddFormBtn.style.display = 'none';
+            addFormWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function hideAddForm() {
+        if (addFormWrapper) {
+            addFormWrapper.style.display = 'none';
+            toggleAddFormBtn.style.display = '';
+        }
+    }
+
+    if (toggleAddFormBtn) toggleAddFormBtn.addEventListener('click', showAddForm);
+    if (closeAddFormBtn) closeAddFormBtn.addEventListener('click', hideAddForm);
+    if (cancelAddFormBtn) cancelAddFormBtn.addEventListener('click', hideAddForm);
+
+    /* ================================================================
+       ADMIN – Delete Confirmation Modal
+       ================================================================ */
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteVideoName = document.getElementById('delete-video-name');
+    const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+    const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+    let pendingDeleteForm = null;
+
+    function openDeleteModal(videoTitle, form) {
+        if (!deleteModal) return;
+        pendingDeleteForm = form;
+        deleteVideoName.textContent = `"${videoTitle}"`;
+        deleteModal.classList.add('active');
+        deleteModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        if (!deleteModal) return;
+        deleteModal.classList.remove('active');
+        deleteModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        pendingDeleteForm = null;
+    }
+
+    // Intercept all delete form submissions
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Get video title from the button's data attribute
+            const btn = form.querySelector('[data-video-title]');
+            const title = btn ? btn.dataset.videoTitle : 'this video';
+            openDeleteModal(title, form);
+        });
+    });
+
+    // Modal cancel
+    if (deleteCancelBtn) {
+        deleteCancelBtn.addEventListener('click', closeDeleteModal);
+    }
+
+    // Modal confirm – submit the stored form
+    if (deleteConfirmBtn) {
+        deleteConfirmBtn.addEventListener('click', () => {
+            if (pendingDeleteForm) {
+                pendingDeleteForm.submit();
+            }
+            closeDeleteModal();
+        });
+    }
+
+    // Close modal on backdrop click
+    if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) closeDeleteModal();
+        });
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && deleteModal && deleteModal.classList.contains('active')) {
+            closeDeleteModal();
+        }
+    });
+
+    /* ================================================================
+       ADMIN – Form Validation
+       ================================================================ */
+    function validateVideoForm(form) {
+        let isValid = true;
+
+        // Clear previous errors
+        form.querySelectorAll('.form-error').forEach(el => { el.textContent = ''; });
+        form.querySelectorAll('.form-input.error, .form-textarea.error').forEach(el => {
+            el.classList.remove('error');
+        });
+
+        // Title validation
+        const titleInput = form.querySelector('[name="title"]');
+        if (titleInput) {
+            const titleVal = titleInput.value.trim();
+            const titleError = titleInput.closest('.form-group').querySelector('.form-error');
+            if (!titleVal) {
+                isValid = false;
+                titleInput.classList.add('error');
+                if (titleError) titleError.textContent = 'Title is required.';
+            } else if (titleVal.length < 3) {
+                isValid = false;
+                titleInput.classList.add('error');
+                if (titleError) titleError.textContent = 'Title must be at least 3 characters.';
+            }
+        }
+
+        // Video URL validation
+        const urlInput = form.querySelector('[name="video_url"]');
+        if (urlInput) {
+            const urlVal = urlInput.value.trim();
+            const urlError = urlInput.closest('.form-group').querySelector('.form-error');
+            if (!urlVal) {
+                isValid = false;
+                urlInput.classList.add('error');
+                if (urlError) urlError.textContent = 'Video URL is required.';
+            } else if (!/^https?:\/\/.+/i.test(urlVal)) {
+                isValid = false;
+                urlInput.classList.add('error');
+                if (urlError) urlError.textContent = 'Please enter a valid URL (http:// or https://).';
+            }
+        }
+
+        // Thumbnail URL – optional but validate format if filled
+        const thumbInput = form.querySelector('[name="thumbnail"]');
+        if (thumbInput && thumbInput.value.trim()) {
+            if (!/^https?:\/\/.+/i.test(thumbInput.value.trim())) {
+                isValid = false;
+                thumbInput.classList.add('error');
+            }
+        }
+
+        return isValid;
+    }
+
+    // Attach validation to all video forms (add form on admin page, edit form on edit page)
+    document.querySelectorAll('#add-video-form, #video-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            if (!validateVideoForm(form)) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstError = form.querySelector('.form-input.error, .form-textarea.error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+    });
+
+    // Real-time error clearing on input
+    document.querySelectorAll('.form-input, .form-textarea').forEach(input => {
+        input.addEventListener('input', () => {
+            input.classList.remove('error');
+            const errorSpan = input.closest('.form-group')?.querySelector('.form-error');
+            if (errorSpan) errorSpan.textContent = '';
+        });
+    });
+
 });
 
 /* ── CSS animation injected via JS ───────────────────── */

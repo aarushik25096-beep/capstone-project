@@ -1,7 +1,31 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pdb
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Database (auto-generated on first run)
 *.db
+
+# OS files
 .DS_Store
-venv/
-venv/
-__pycache__/
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if any)
+node_modules/
+
+# Gemini
+.gemini/

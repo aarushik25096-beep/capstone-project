@@ -6,6 +6,10 @@ Flask application with SQLite database for managing and streaming videos.
 import sqlite3
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 from flask import (
     Flask,
     render_template,
@@ -21,7 +25,7 @@ from flask import (
 # App configuration
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
-app.secret_key = "streamvault-secret-key-change-in-production"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "fallback-dev-key-change-in-production")
 
 DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "videos.db")
 
@@ -367,4 +371,6 @@ with app.app_context():
     init_db()
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "yes")
+    port = int(os.environ.get("FLASK_PORT", 5000))
+    app.run(debug=debug_mode, port=port)

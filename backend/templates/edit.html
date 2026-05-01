@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}{% if video %}Edit: {{ video.title }}{% else %}Add New Video{% endif %} – StreamVault{% endblock %}
+
+{% block content %}
+
+<!-- ===== PAGE HEADER ===== -->
+<section class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <span class="material-icons-round">{% if video %}edit{% else %}add_circle{% endif %}</span>
+            {% if video %}Edit Video{% else %}Add New Video{% endif %}
+        </h1>
+        <p class="page-subtitle">
+            {% if video %}
+            Editing <strong>{{ video.title }}</strong>
+            {% else %}
+            Fill in the details below to add a new video to the library
+            {% endif %}
+        </p>
+    </div>
+</section>
+
+<!-- ===== FORM ===== -->
+<section class="section">
+    <div class="form-container" id="video-form-container">
+        <form method="POST"
+            action="{% if video %}{{ url_for('edit', video_id=video.id) }}{% else %}{{ url_for('add') }}{% endif %}"
+            class="video-form" id="video-form">
+
+            <div class="form-grid">
+                <!-- Title -->
+                <div class="form-group form-col-full">
+                    <label for="title" class="form-label">
+                        <span class="material-icons-round">title</span> Title <span class="required">*</span>
+                    </label>
+                    <input type="text" name="title" id="title" class="form-input" required
+                        placeholder="Enter video title…" value="{{ video.title if video else '' }}">
+                    <span class="form-error" id="title-error"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group form-col-full">
+                    <label for="description" class="form-label">
+                        <span class="material-icons-round">description</span> Description
+                    </label>
+                    <textarea name="description" id="description" class="form-textarea" rows="4"
+                        placeholder="Describe the video…">{{ video.description if video else '' }}</textarea>
+                </div>
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="category" class="form-label">
+                        <span class="material-icons-round">category</span> Category
+                    </label>
+                    <input type="text" name="category" id="category" class="form-input"
+                        placeholder="e.g. Documentary, Music, Education"
+                        value="{{ video.category if video else '' }}"
+                        list="category-list">
+                    <datalist id="category-list">
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+
+                <!-- Thumbnail URL -->
+                <div class="form-group">
+                    <label for="thumbnail" class="form-label">
+                        <span class="material-icons-round">image</span> Thumbnail URL
+                    </label>
+                    <input type="url" name="thumbnail" id="thumbnail" class="form-input"
+                        placeholder="https://example.com/thumbnail.jpg"
+                        value="{{ video.thumbnail if video else '' }}">
+                </div>
+
+                <!-- Thumbnail Preview -->
+                <div class="form-group form-col-full">
+                    <div class="thumb-preview" id="thumb-preview">
+                        {% if video and video.thumbnail %}
+                        <img src="{{ video.thumbnail }}" alt="Thumbnail preview" id="thumb-img">
+                        {% else %}
+                        <div class="thumb-placeholder" id="thumb-placeholder">
+                            <span class="material-icons-round">image</span>
+                            <span>Thumbnail preview</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Video URL -->
+                <div class="form-group form-col-full">
+                    <label for="video_url" class="form-label">
+                        <span class="material-icons-round">play_circle</span> Embed / Video URL <span class="required">*</span>
+                    </label>
+                    <input type="url" name="video_url" id="video_url" class="form-input" required
+                        placeholder="YouTube URL or direct .mp4 link"
+                        value="{{ video.video_url if video else '' }}">
+                    <span class="form-hint">Supports YouTube links and direct MP4 URLs</span>
+                    <span class="form-error" id="video-url-error"></span>
+                </div>
+
+                <!-- Featured toggle -->
+                <div class="form-group form-group-toggle">
+                    <label class="form-toggle">
+                        <input type="checkbox" name="featured" id="featured"
+                            {% if video and video.featured %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">
+                            <span class="material-icons-round">star</span> Mark as Featured
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <a href="{{ url_for('admin') }}" class="btn-ghost">
+                    <span class="material-icons-round">arrow_back</span> Cancel
+                </a>
+                <button type="submit" class="btn-primary" id="submit-btn">
+                    <span class="material-icons-round">{% if video %}save{% else %}add{% endif %}</span>
+                    {% if video %}Save Changes{% else %}Add Video{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Live thumbnail preview (sanitised to prevent XSS)
+    const thumbInput = document.getElementById('thumbnail');
+    const previewContainer = document.getElementById('thumb-preview');
+
+    if (thumbInput) {
+        thumbInput.addEventListener('input', () => {
+            const url = thumbInput.value.trim();
+            if (url && /^https?:\/\/.+/i.test(url)) {
+                // Safe: URL validated before rendering
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = 'Thumbnail preview';
+                img.id = 'thumb-img';
+                img.onerror = function() { this.style.display = 'none'; };
+                previewContainer.innerHTML = '';
+                previewContainer.appendChild(img);
+            } else {
+                previewContainer.innerHTML = `
+                    <div class="thumb-placeholder" id="thumb-placeholder">
+                        <span class="material-icons-round">image</span>
+                        <span>Thumbnail preview</span>
+                    </div>`;
+            }
+        });
+    }
+</script>
+{% endblock %}

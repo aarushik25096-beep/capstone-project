@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – StreamVault{% endblock %}
+
+{% block content %}
+
+<!-- ===== ADMIN HEADER ===== -->
+<section class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <span class="material-icons-round">admin_panel_settings</span>
+            Admin Dashboard
+        </h1>
+        <p class="page-subtitle">
+            Manage your video library — <strong>{{ videos | length }}</strong> video{% if videos | length != 1 %}s{% endif %} total
+        </p>
+    </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<section class="admin-stats-bar">
+    <div class="admin-stats-container">
+        <div class="admin-stat-card">
+            <span class="material-icons-round stat-icon">video_library</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ videos | length }}</span>
+                <span class="stat-label">Total Videos</span>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <span class="material-icons-round stat-icon star-icon">star</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ videos | selectattr('featured') | list | length }}</span>
+                <span class="stat-label">Featured</span>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <span class="material-icons-round stat-icon views-icon">visibility</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ videos | sum(attribute='views') }}</span>
+                <span class="stat-label">Total Views</span>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <span class="material-icons-round stat-icon cat-icon">category</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ videos | map(attribute='category') | unique | list | length }}</span>
+                <span class="stat-label">Categories</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ADD VIDEO FORM (collapsible) ===== -->
+<section class="section">
+    <div class="admin-toolbar">
+        <button class="btn-primary" id="toggle-add-form-btn" type="button">
+            <span class="material-icons-round">add</span> Add New Video
+        </button>
+    </div>
+
+    <!-- Inline Add Video Form -->
+    <div class="admin-add-form-wrapper" id="admin-add-form" style="display: none;">
+        <div class="form-container">
+            <div class="form-header-inline">
+                <h2 class="form-inline-title">
+                    <span class="material-icons-round">add_circle</span> Add New Video
+                </h2>
+                <button type="button" class="form-close-btn" id="close-add-form-btn" aria-label="Close form">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <form method="POST" action="{{ url_for('add') }}" class="video-form" id="add-video-form">
+                <div class="form-grid">
+                    <!-- Title -->
+                    <div class="form-group form-col-full">
+                        <label for="add-title" class="form-label">
+                            <span class="material-icons-round">title</span> Title <span class="required">*</span>
+                        </label>
+                        <input type="text" name="title" id="add-title" class="form-input" required
+                            placeholder="Enter video title…">
+                        <span class="form-error" id="add-title-error"></span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group form-col-full">
+                        <label for="add-description" class="form-label">
+                            <span class="material-icons-round">description</span> Description
+                        </label>
+                        <textarea name="description" id="add-description" class="form-textarea" rows="3"
+                            placeholder="Describe the video…"></textarea>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="add-category" class="form-label">
+                            <span class="material-icons-round">category</span> Category
+                        </label>
+                        <input type="text" name="category" id="add-category" class="form-input"
+                            placeholder="e.g. Documentary, Music, Education">
+                    </div>
+
+                    <!-- Thumbnail URL -->
+                    <div class="form-group">
+                        <label for="add-thumbnail" class="form-label">
+                            <span class="material-icons-round">image</span> Thumbnail URL
+                        </label>
+                        <input type="url" name="thumbnail" id="add-thumbnail" class="form-input"
+                            placeholder="https://example.com/thumb.jpg">
+                    </div>
+
+                    <!-- Video / Embed URL -->
+                    <div class="form-group">
+                        <label for="add-video-url" class="form-label">
+                            <span class="material-icons-round">play_circle</span> Embed / Video URL <span class="required">*</span>
+                        </label>
+                        <input type="url" name="video_url" id="add-video-url" class="form-input" required
+                            placeholder="YouTube URL or direct .mp4 link">
+                        <span class="form-error" id="add-video-url-error"></span>
+                    </div>
+
+                    <!-- Featured toggle -->
+                    <div class="form-group form-group-toggle">
+                        <label class="form-toggle">
+                            <input type="checkbox" name="featured" id="add-featured">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">
+                                <span class="material-icons-round">star</span> Mark as Featured
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn-ghost" id="cancel-add-form-btn">
+                        <span class="material-icons-round">close</span> Cancel
+                    </button>
+                    <button type="submit" class="btn-primary" id="add-submit-btn">
+                        <span class="material-icons-round">add</span> Add Video
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if videos %}
+    <!-- ===== VIDEOS TABLE (Desktop) ===== -->
+    <div class="admin-table-wrapper" id="admin-table">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Thumbnail</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Views</th>
+                    <th>Featured</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for video in videos %}
+                <tr>
+                    <td class="admin-thumb-cell">
+                        <img src="{{ video.thumbnail }}" alt="{{ video.title }}" class="admin-thumb" loading="lazy">
+                    </td>
+                    <td class="admin-title-cell">
+                        <a href="{{ url_for('watch', video_id=video.id) }}" class="admin-title-link">
+                            {{ video.title }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="category-badge badge-{{ video.category | lower | replace(' ', '-') }}">
+                            {{ video.category }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="admin-views">
+                            <span class="material-icons-round">visibility</span>
+                            {{ video.views }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if video.featured %}
+                        <span class="admin-featured-badge active">
+                            <span class="material-icons-round">star</span> Yes
+                        </span>
+                        {% else %}
+                        <span class="admin-featured-badge">
+                            <span class="material-icons-round">star_border</span> No
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="admin-date">{{ video.created_at[:10] }}</td>
+                    <td class="admin-actions">
+                        <a href="{{ url_for('edit', video_id=video.id) }}" class="action-btn edit-btn"
+                            title="Edit video">
+                            <span class="material-icons-round">edit</span>
+                        </a>
+                        <form action="{{ url_for('delete', video_id=video.id) }}" method="POST" class="delete-form">
+                            <button type="submit" class="action-btn delete-btn" title="Delete video"
+                                data-video-title="{{ video.title }}">
+                                <span class="material-icons-round">delete</span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== VIDEOS CARDS (Mobile) ===== -->
+    <div class="admin-cards" id="admin-cards">
+        {% for video in videos %}
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <img src="{{ video.thumbnail }}" alt="{{ video.title }}" class="admin-card-thumb" loading="lazy">
+                <div class="admin-card-info">
+                    <a href="{{ url_for('watch', video_id=video.id) }}" class="admin-card-title">{{ video.title }}</a>
+                    <div class="admin-card-meta">
+                        <span class="category-badge badge-{{ video.category | lower | replace(' ', '-') }}">
+                            {{ video.category }}
+                        </span>
+                        {% if video.featured %}
+                        <span class="admin-featured-badge active">
+                            <span class="material-icons-round">star</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="admin-card-stats">
+                <span><span class="material-icons-round">visibility</span> {{ video.views }} views</span>
+                <span><span class="material-icons-round">schedule</span> {{ video.created_at[:10] }}</span>
+            </div>
+            <div class="admin-card-actions">
+                <a href="{{ url_for('edit', video_id=video.id) }}" class="btn-ghost small">
+                    <span class="material-icons-round">edit</span> Edit
+                </a>
+                <form action="{{ url_for('delete', video_id=video.id) }}" method="POST" class="delete-form">
+                    <button type="submit" class="btn-ghost small delete-btn-mobile"
+                        data-video-title="{{ video.title }}">
+                        <span class="material-icons-round">delete</span> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <span class="material-icons-round">video_library</span>
+        <h3>No videos yet</h3>
+        <p>Get started by adding your first video to the library.</p>
+        <a href="{{ url_for('add') }}" class="btn-primary">
+            <span class="material-icons-round">add</span> Add Video
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- ===== DELETE CONFIRMATION MODAL ===== -->
+<div class="modal-overlay" id="delete-modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-icon">
+            <span class="material-icons-round">warning</span>
+        </div>
+        <h3 class="modal-title">Delete Video</h3>
+        <p class="modal-body">
+            Are you sure you want to delete <strong id="delete-video-name"></strong>?
+            This action cannot be undone.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn-ghost" id="delete-cancel-btn">
+                <span class="material-icons-round">close</span> Cancel
+            </button>
+            <button type="button" class="btn-danger" id="delete-confirm-btn">
+                <span class="material-icons-round">delete</span> Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
