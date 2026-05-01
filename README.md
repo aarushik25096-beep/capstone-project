@@ -4,16 +4,6 @@ A modern, full-stack video streaming platform inspired by Netflix and YouTube. B
 
 ---
 
-## 📸 Screenshots
-
-> _Add screenshots of your home page, watch page, and admin panel here._
-
-| Home Page | Watch Page | Admin Dashboard |
-|-----------|------------|-----------------|
-| ![Home](#) | ![Watch](#) | ![Admin](#) |
-
----
-
 ## 🧰 Tech Stack
 
 | Layer      | Technology                        |
