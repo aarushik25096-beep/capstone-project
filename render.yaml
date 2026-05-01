@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: streamvault
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
